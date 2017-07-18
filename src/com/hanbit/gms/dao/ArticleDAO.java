@@ -6,7 +6,7 @@ import com.hanbit.gms.domain.ArticleBean;
 
 public interface ArticleDAO {
 	public String insert(ArticleBean bean);
-	public int count();
+	public String count();
 	public List<ArticleBean> selectAll();
 	public List<ArticleBean> selectById(String id);
 	public ArticleBean selectBySeq(int seq);

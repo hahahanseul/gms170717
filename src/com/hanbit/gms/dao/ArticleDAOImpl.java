@@ -2,48 +2,45 @@ package com.hanbit.gms.dao;
 
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.hanbit.gms.constant.DB;
+import com.hanbit.gms.constant.SQL;
+import com.hanbit.gms.constant.Vendor;
 import com.hanbit.gms.domain.ArticleBean;
+import com.hanbit.gms.factory.DatabaseFactory;
+import com.sun.org.apache.xalan.internal.xsltc.compiler.util.ResultTreeType;
 
 public class ArticleDAOImpl implements ArticleDAO {
-	public ArticleDAOImpl() {
-		try {
-			Class.forName(DB.DRIVER);
-		} catch (ClassNotFoundException e) {
-			System.out.println("DRIVER LOAD FAIL....");
-			e.printStackTrace();
-		}
-		
+	public static ArticleDAOImpl getInstance() {
+		return new ArticleDAOImpl();
 	}
+	private ArticleDAOImpl() {}
 	@Override
 	public String insert(ArticleBean bean) {
-		int rs = 0;
+		String rs = "";
 		try {
-			rs = DriverManager.getConnection(DB.URL,DB.USERID,DB.PASSWORD).createStatement().executeUpdate(
-					String.format("INSERT INTO %s(%s,%s,%s,%s,%s,%s) VALUES (article_seq.nextval,'%s','%s','%s','0',SYSDATE)"
-					,DB.TABLE_BOARD
-					,DB.BOARD_SEQ,DB.MEMBER_ID,DB.BOARD_TITLE,DB.BOARD_CONTENT,DB.BOARD_HITCNT,DB.BOARD_REGDATE
-					,bean.getId(),bean.getTitle(), bean.getContent())
-					);
+			PreparedStatement pstmt = DatabaseFactory.createDatabase(Vendor.ORACLE, DB.USERNAME, DB.PASSWORD).getConnection().prepareStatement(SQL.BOARD_INSERT);
+			pstmt.setString(1,bean.getId());
+			pstmt.setString(2,bean.getTitle());
+			pstmt.setString(3,bean.getContent());
+			rs = String.valueOf(pstmt.executeUpdate());
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return String.valueOf(rs);
+		return rs;
 	}
 
 	@Override
 	public List<ArticleBean> selectAll() {
 		List<ArticleBean> list = new ArrayList<>();
 		try {
-			ResultSet rs = DriverManager.getConnection(DB.URL,DB.USERID,DB.PASSWORD).createStatement().executeQuery(
-					String.format("SELECT * FROM %s",DB.TABLE_BOARD )
-					);
+			ResultSet rs = DatabaseFactory.createDatabase(Vendor.ORACLE, DB.USERNAME, DB.PASSWORD).getConnection().prepareStatement(SQL.BOARD_LIST).executeQuery();
 			ArticleBean article=null;
 			while(rs.next()) {
 				article = new ArticleBean();
@@ -63,14 +60,13 @@ public class ArticleDAOImpl implements ArticleDAO {
 		}
 		return list;
 	}
-
 	@Override
 	public List<ArticleBean> selectById(String id) {
 		List<ArticleBean> list = new ArrayList<>();
 		try {
-			ResultSet rs = DriverManager.getConnection(DB.URL,DB.USERID,DB.PASSWORD).createStatement().executeQuery(
-					String.format("SELECT * FROM %s WHERE id = '%s'",DB.TABLE_BOARD, id )
-					);
+			PreparedStatement pstmt = DatabaseFactory.createDatabase(Vendor.ORACLE, DB.USERNAME, DB.PASSWORD).getConnection().prepareStatement(SQL.BOARD_FINDBYID);
+			pstmt.setString(1,id);
+			ResultSet rs =pstmt.executeQuery();
 			ArticleBean article=null;
 			while(rs.next()) {
 				article = new ArticleBean();
@@ -90,14 +86,13 @@ public class ArticleDAOImpl implements ArticleDAO {
 		}
 		return list;
 	}
-
 	@Override
 	public ArticleBean selectBySeq(int seq) {
 		ArticleBean article = new ArticleBean();
 		try {
-			ResultSet rs = DriverManager.getConnection(DB.URL,DB.USERID,DB.PASSWORD).createStatement().executeQuery(
-					String.format("SELECT * FROM %s WHERE %s='%d'",DB.TABLE_BOARD,DB.BOARD_SEQ,seq)
-					);
+			PreparedStatement pstmt = DatabaseFactory.createDatabase(Vendor.ORACLE, DB.USERNAME, DB.PASSWORD).getConnection().prepareStatement(SQL.BOARD_FINDBYSEQ);
+			pstmt.setString(1,String.valueOf(seq));
+			ResultSet rs= pstmt.executeQuery();
 			if(rs.next()) {
 				article.setArticleSeq(Integer.parseInt(rs.getString(DB.BOARD_SEQ)));
 				article.setId(rs.getString(DB.BOARD_ID));
@@ -113,16 +108,13 @@ public class ArticleDAOImpl implements ArticleDAO {
 		}
 		return article;
 	}
-
 	@Override
-	public int count() {
-		int res =0;
+	public String count() {
+		String res ="";
 		try {
-			ResultSet rs=DriverManager.getConnection(DB.URL,DB.USERID,DB.PASSWORD).createStatement().executeQuery(
-					String.format("SELECT COUNT(*) AS %s FROM %s","count",DB.TABLE_BOARD)
-					);
+			ResultSet rs =DatabaseFactory.createDatabase(Vendor.ORACLE, DB.USERNAME, DB.PASSWORD).getConnection().prepareStatement(SQL.BOARD_COUNT).executeQuery();
 			if(rs.next()) {
-				res=Integer.parseInt(rs.getString("count"));
+				res=rs.getString("count");
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -130,34 +122,36 @@ public class ArticleDAOImpl implements ArticleDAO {
 		}
 		return res;
 	}
-
 	@Override
 	public String update(ArticleBean bean) {
-		int rs =0;
+		String rs ="";
+		ArticleBean temp= selectBySeq(bean.getArticleSeq());
+		String title = (bean.getTitle().equals(""))? temp.getTitle() :bean.getTitle(); 
+		String content = (bean.getContent().equals(""))? temp.getContent() :bean.getContent(); 
 		try {
-			rs = DriverManager.getConnection(DB.URL,DB.USERID,DB.PASSWORD).createStatement().executeUpdate(
-					"UPDATE Board SET title='" + bean.getTitle() + "', content='" + bean.getContent() + "' WHERE article_seq = '"+bean.getArticleSeq()+"'"); 
-				  //"UPDATE Board SET title='"+bean.getTitle()+"', content='"+bean.getContent()+"'WHERE article_seq='"+bean.getArticleSeq()+"'");
-
+			PreparedStatement pstmt = DatabaseFactory.createDatabase(Vendor.ORACLE, DB.USERNAME, DB.PASSWORD).getConnection().prepareStatement(SQL.BOARD_UPDATE);
+			pstmt.setString(1, title);
+			pstmt.setString(2, content);
+			pstmt.setString(3, String.valueOf(bean.getArticleSeq()));
+			rs = String.valueOf(pstmt.executeUpdate());
 		}
 		catch(Exception e){
 			e.printStackTrace();
 		}
-		return String.valueOf(rs);
+		return rs;
 	}
 
 	@Override
 	public String delete(int seq) {
-		int rs=0;
+		String rs="";
 		try {
-			rs = DriverManager.getConnection(DB.URL,DB.USERID,DB.PASSWORD).createStatement().executeUpdate(
-					"DELETE FROM Board WHERE article_seq ='"+seq+"'"); 
+			PreparedStatement pstmt = DatabaseFactory.createDatabase(Vendor.ORACLE, DB.USERNAME, DB.PASSWORD).getConnection().prepareStatement(SQL.BOARD_DELETE);
+			pstmt.setString(1, String.valueOf(seq));
+			rs=String.valueOf(pstmt.executeUpdate());
 		}
 		catch(Exception e){
 			e.printStackTrace();
 		}
-		//
-		return String.valueOf(rs);
+		return rs;
 	}
-
 }

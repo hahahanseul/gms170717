@@ -7,7 +7,7 @@ import com.hanbit.gms.domain.MemberBean;
 
 public interface ArticleService {
 	public String write(ArticleBean bean);
-	public int count();
+	public String count();
 	public List<ArticleBean> list();
 	public List<ArticleBean> findById(String id);
 	public ArticleBean findBySeq(int seq);

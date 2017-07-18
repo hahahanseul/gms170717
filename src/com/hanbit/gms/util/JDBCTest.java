@@ -9,7 +9,7 @@ import java.sql.Statement;
 import com.hanbit.gms.constant.DB;
 
 public class JDBCTest {
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		String findName="";
 		Connection conn = null;
 		try {
@@ -24,14 +24,14 @@ public class JDBCTest {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}/*finally {
+		}finally {
 			try {
 				conn.close();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}*/
+		}
 		System.out.println("### 결과: "+findName);
-	}
+	}*/
 }

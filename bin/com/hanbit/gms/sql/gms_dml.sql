@@ -1,10 +1,14 @@
 --id,name,pw,ssn,regdate; 
-SELECT * FROM Member;
-SELECT * FROM Member WHERE name = "hong";
-SELECT COUNT(*) AS count FROM Member;a
+
 INSERT INTO Member(id,name,pw,ssn,regdate)
 VALUES('song2','송무명','1','170215-4821305',SYSDATE)
 
+SELECT * FROM Member;
+SELECT * FROM Member WHERE id = 'hong';
+SELECT * FROM Member WHERE name = '홍길동';
+SELECT COUNT(*) AS count FROM Member;
+UPDATE Member SET pw = '2' WHERE id = 'hong';
+DELETE FROM Member WHERE id='hansuru';
 -- id, title, content;
 -- article_seq, hitcount;
 -- regdate;
@@ -41,9 +45,8 @@ VALUES (article_seq.nextval, 'li', '웅대', '아름답고 사람은 웅대한 �
 INSERT INTO Board(article_seq, id, title, content, hitcount, regdate)
 VALUES (article_seq.nextval, 'hanseul', '바람이분다능', '구하지 그들은 위하여서, 희망의 봄바람이다.', 0,SYSDATE);
 
+INSERT INTO Board(article_seq, id, title, content, hitcount, regdate) VALUES (article_seq.nextval,?,?,?,0,SYSDATE)
 
-UPDATE Member
-SET ssn = '900117-2031222'
-WHERE id = 'hanseul';
-DELETE FROM Board WHERE article_seq='1011'
 SELECT * FROM Board;
+
+DELETE FROM Board WHERE article_seq='1011'

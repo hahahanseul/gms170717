@@ -10,7 +10,6 @@ import javax.swing.*;
 
 public class MemberController {
 	public static void main(String[] args) {
-		MemberService service = new MemberServiceImpl();
 		MemberBean member = null;
 		Butt[] buttons = {Butt.EXIT,Butt.ADD,Butt.LIST,Butt.FIND_NAME,Butt.FIND_ID,Butt.COUNT,Butt.UPDATE,Butt.DEL};
 		do{
@@ -25,20 +24,20 @@ public class MemberController {
 				member.setId(arr[1]);
 				member.setPw(arr[2]);
 				member.setSsn(arr[3]);
-				JOptionPane.showMessageDialog(null, service.addMember(member));			
+				JOptionPane.showMessageDialog(null, MemberServiceImpl.getInstance().addMember(member));			
 				break flag;
 			case COUNT:
-				JOptionPane.showMessageDialog(null, service.countMembers());
+				JOptionPane.showMessageDialog(null, MemberServiceImpl.getInstance().countMembers());
 				break flag;
 			case LIST:
-				JOptionPane.showMessageDialog(null, service.getMembers());
+				JOptionPane.showMessageDialog(null, MemberServiceImpl.getInstance().getMembers());
 				break flag;
 			case FIND_ID:
-				JOptionPane.showMessageDialog(null,service.findById(JOptionPane.showInputDialog("검색할 Id를 입력하세요")).toString());
+				JOptionPane.showMessageDialog(null,MemberServiceImpl.getInstance().findById(JOptionPane.showInputDialog("검색할 Id를 입력하세요")).toString());
 				break flag;
 			case FIND_NAME:
 				String name = JOptionPane.showInputDialog("검색할 이름을 입력하세요");
-				JOptionPane.showMessageDialog(null,service.findByNames(name));
+				JOptionPane.showMessageDialog(null,MemberServiceImpl.getInstance().findByNames(name));
 				break flag;
 			case UPDATE:
 				String id = JOptionPane.showInputDialog("아이디");
@@ -50,11 +49,11 @@ public class MemberController {
 				member.setPw(newPassword);
 				member.setName(newName);
 				member.setSsn(newSsn);
-				service.modify(member);
+				MemberServiceImpl.getInstance().modify(member);
 				JOptionPane.showMessageDialog(null, "수정완료");
 				break flag;
 			case DEL:
-				service.remove(JOptionPane.showInputDialog("삭제할 아이디를 입력하세요"));
+				MemberServiceImpl.getInstance().remove(JOptionPane.showInputDialog("삭제할 아이디를 입력하세요"));
 				JOptionPane.showMessageDialog(null, "삭제완료");
 				break flag;
 			}
